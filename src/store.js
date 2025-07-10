@@ -5,47 +5,76 @@ export const useStore = create((set) => ({
   showTagFilter: false,
   selectedFolder: null,
   selectedTag: null,
+  marked: null,
   folders: [{ id: 'inbox', name: 'Inbox', expanded: true, color: '#3b82f6' }],
+  notes: [{
+    id: 1,
+    title: 'Welcome to Freedom Notes',
+    content: `# Welcome to Freedom Notes`,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    folderId: 'inbox',
+    tags: ['welcome', 'tutorial', 'markdown', 'features']
+  }],
+  selectedNote: notes[0],
+  isPreview: false,
+  sidebarOpen: true,
+  editingTitle: false,
+  tempTitle: '',
+  showNewFolderForm: false,
+  newFolderName: '',
+  editingTags: false,
+  tempTags: '',
 
-  setSearchTerm: (searchTerm) => set((state) => ({ searchTerm: searchTerm })),
+  setSearchTerm: (searchTerm) => set(() => ({ searchTerm })),
   setShowTagFilter: (showTagFilter) => set(
-    (state) => ({ showTagFilter: showTagFilter })
+    () => ({ showTagFilter })
   ),
   setSelectedFolder: (selectedFolder) => set(
-    (state) => ({ selectedFolder: selectedFolder })
+    () => ({ selectedFolder })
   ),
   setSelectedTag: (selectedTag) => set(
-    (state) => ({ selectedTag: selectedTag })
+    () => ({ selectedTag })
   ),
+  setMarked: (marked) => set(() => ({ marked })),
   addFolder: (folder) => set(
-    (state) => ({ ...state, folders: [...folders, folder] })
+    (state) => ({ folders: [...state.folders, folder] })
   ),
   setFolders: (folders) => set(
-    (state) => ({ folders: folders }),
-    true
+    () => ({ folders })
+  ),
+  addNote: (note) => set(
+    (state) => ({ notes: [...state.notes, note] })
+  ),
+  setNotes: (notes) => set(
+    () => ({ notes })
+  ),
+  setSelectedNote: (selectedNote) => set(
+    () => ({ selectedNote })
+  ),
+  setIsPreview: (isPreview) => set(
+    () => ({ isPreview })
+  ),
+  setSidebarOpen: (sidebarOpen) => set(
+    () => ({ sidebarOpen })
+  ),
+  setEditingTitle: (editingTitle) => set(
+    () => ({ editingTitle })
+  ),
+  setTempTitle: (tempTitle) => set(
+    () => ({ tempTitle })
+  ),
+  setShowNewFolderForm: (showNewFolderForm) => set(
+    () => ({ showNewFolderForm })
+  ),
+  setNewFolderName: (newFolderName) => set(
+    () => ({ newFolderName })
+  ),
+  setEditingTags: (editingTags) => set(
+    () => ({ editingTags })
+  ),
+  setTempTags: (tempTags) => set(
+    () => ({ tempTags })
   ),
 
-  setSidebarOpen: () => set((state) => ({ isSidebarOpen: true })),
-  setSidebarClose: () => set((state) => ({ isSidebarOpen: false })),
-
-  setSelectedUser: (user) => set((state) => ({ selectedUser: user })),
-
-  addMessage: (userEmail, messagePayload) =>
-    set((state) => ({
-      messages: {
-        ...state.messages,
-        [userEmail]: [
-          ...(state.messages[userEmail] || []),
-          messagePayload,
-        ],
-      },
-    })),
-
-  setMessages: (userEmail, messagesArray) =>
-    set((state) => ({
-      messages: {
-        ...state.messages,
-        [userEmail]: messagesArray,
-      },
-    })),
 }));
