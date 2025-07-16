@@ -1,4 +1,5 @@
 import { useStore } from '../store';
+import { Filter } from 'lucide-react';
 
 function Filters() {
   const showTagFilter = useStore((state) => state.showTagFilter);

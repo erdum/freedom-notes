@@ -1,3 +1,4 @@
+import { Menu, Eye, Edit3, Settings, Tag } from 'lucide-react';
 function Topbar() {
   return (
     <div className="bg-white border-b border-gray-200 p-4 flex items-center justify-between">

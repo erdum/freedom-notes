@@ -1,3 +1,4 @@
+import { Plus, Folder, X } from 'lucide-react';
 function Sidebar() {
   return (
     <div className={`bg-white border-r border-gray-200 flex flex-col transition-all duration-300 ${

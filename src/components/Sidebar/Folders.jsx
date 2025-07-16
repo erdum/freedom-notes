@@ -1,4 +1,5 @@
 import { useStore } from '../store';
+import { ChevronDown, ChevronRight, Trash2, Plus } from 'lucide-react';
 
 function Folders() {
   const folders = useStore((state) => state.folders);
