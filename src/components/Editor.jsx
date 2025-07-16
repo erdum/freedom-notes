@@ -1,4 +1,15 @@
+import { useStore } from '../store';
+import { parseMarkdown } from '../markdown';
+
 function Editor() {
+  const isPreview = useStore((state) => state.isPreview);
+  const notes = useStore((state) => state.notes);
+  const selectedNote = useStore((state) => state.selectedNote);
+  const setSelectedNote = useStore((state) => state.setSelectedNote);
+  const setNotes = useStore((state) => state.setNotes);
+  const marked = useStore((state) => state.marked);
+  const updateNote = useStore((state) => state.updateNote);
+
   return (
     <div className="flex-1 flex">
       {/* Editor */}

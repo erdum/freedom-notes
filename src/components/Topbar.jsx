@@ -1,5 +1,20 @@
 import { Menu, Eye, Edit3, Settings, Tag } from 'lucide-react';
+import { useStore } from '../store';
+
 function Topbar() {
+  const folders = useStore((state) => state.folders);
+  const editingTitle = useStore((state) => state.editingTitle);
+  const selectedNote = useStore((state) => state.selectedNote);
+  const isPreview = useStore((state) => state.isPreview);
+  const tempTitle = useStore((state) => state.tempTitle);
+  const sidebarOpen = useStore((state) => state.sidebarOpen);
+
+  const handleTitleEdit = useStore((state) => state.handleTitleEdit);
+  const setIsPreview = useStore((state) => state.setIsPreview);
+  const setTempTitle = useStore((state) => state.setTempTitle);
+  const saveTitleEdit = useStore((state) => state.saveTitleEdit);
+  const setSidebarOpen = useStore((state) => state.setSidebarOpen);
+
   return (
     <div className="bg-white border-b border-gray-200 p-4 flex items-center justify-between">
       <div className="flex items-center gap-4">

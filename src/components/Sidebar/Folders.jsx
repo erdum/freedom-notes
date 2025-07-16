@@ -1,21 +1,42 @@
-import { useStore } from '../store';
 import { ChevronDown, ChevronRight, Trash2, Plus } from 'lucide-react';
+import { useStore } from '../../store';
 
 function Folders() {
   const folders = useStore((state) => state.folders);
+  const notes = useStore((state) => state.notes);
   const selectedFolder = useStore((state) => state.selectedFolder);
+  const selectedNote = useStore((state) => state.selectedNote);
+  const searchTerm = useStore((state) => state.searchTerm);
+  const selectedTag = useStore((state) => state.selectedTag);
 
   const setSelectedFolder = useStore((state) => state.setSelectedFolder);
-  const setSelectedTag = useStore((state) => state.setSelectedTag);
-  const setFolders = useStore((state) => state.setFolders);
+  // const setSelectedTag = useStore((state) => state.setSelectedTag);
+  const setSelectedNote = useStore((state) => state.setSelectedNote);
+  const createNewNote = useStore((state) => state.createNewNote);
+  const toggleFolder = useStore((state) => state.toggleFolder);
+  const updateNote = useStore((state) => state.updateNote);
+  const moveNoteToFolder = useStore((state) => state.moveNoteToFolder);
+  const deleteNote = useStore((state) => state.deleteNote);
+  const formatDate = useStore((state) => state.formatDate);
 
-  const toggleFolder = (folderId) => {
-    setFolders(folders.map(folder => 
-      folder.id === folderId 
-        ? { ...folder, expanded: !folder.expanded }
-        : folder
-    ));
-  };
+  const filteredNotes = notes.filter(note => {
+    const matchesSearch = 
+      note.title.toLowerCase().includes(searchTerm.toLowerCase())
+      || note.content.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    const matchesFolder = selectedFolder ? note.folderId === selectedFolder : true;
+    const matchesTag = selectedTag ? (note.tags || []).includes(selectedTag) : true;
+    
+    return matchesSearch && matchesFolder && matchesTag;
+  });
+
+  const notesByFolder = filteredNotes.reduce((acc, note) => {
+    if (!acc[note.folderId]) {
+      acc[note.folderId] = [];
+    }
+    acc[note.folderId].push(note);
+    return acc;
+  }, {});
 
   return (
     <div className="flex-1 overflow-y-auto">
@@ -23,12 +44,12 @@ function Folders() {
         <div key={folder.id} className="mb-1">
           {/* Folder Header */}
           <div 
-            className={`flex items-center justify-between p-2 mx-2 rounded hover:bg-gray-50 cursor-pointer ${
-              selectedFolder === folder.id ? 'bg-blue-50' : ''
+            className={`flex items-center justify-between p-2 mx-2 rounded cursor-pointer ${
+              selectedFolder === folder.id ? 'bg-blue-100' : 'hover:bg-gray-100'
             }`}
             onClick={() => {
               setSelectedFolder(selectedFolder === folder.id ? null : folder.id);
-              setSelectedTag(null);
+              // setSelectedTag(null);
             }}
           >
             <div className="flex items-center gap-2">
@@ -98,7 +119,7 @@ function Folders() {
                         className="text-xs bg-transparent border-none focus:outline-none"
                       >
                         {folders.map(f => (
-                          <option key={f.id} value={f.id}>{f.name}</option>
+                          <option disabled={f.id === note.folderId} key={f.id} value={f.id}>{f.name}</option>
                         ))}
                       </select>
                       <button
@@ -106,7 +127,7 @@ function Folders() {
                           e.stopPropagation();
                           deleteNote(note.id);
                         }}
-                        className="p-1 hover:bg-red-100 rounded opacity-0 group-hover:opacity-100 transition-opacity"
+                        className="p-1 hover:bg-red-100 rounded cursor-pointer"
                       >
                         <Trash2 className="w-3 h-3 text-red-500" />
                       </button>

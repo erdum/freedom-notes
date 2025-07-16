@@ -1,11 +1,19 @@
+import { useEffect } from 'react';
 import { useStore } from './store';
-import Sidebar from './Sidebar';
-import Topbar from './Topbar';
-import Tagsbar from './Tagsbar';
-import Editor from './Editor';
-import StatusBar from './StatusBar';
+import { loadMarked } from './markdown';
+import Sidebar from './components/Sidebar';
+import Topbar from './components/Topbar';
+import Tagsbar from './components/Tagsbar';
+import Editor from './components/Editor';
+import StatusBar from './components/StatusBar';
 
 function App() {
+  const setMarked = useStore((state) => state.setMarked);
+
+  // Load marked library on component mount
+  useEffect(() => {
+    loadMarked().then(setMarked);
+  }, []);
 
   return (
     <div className="h-screen bg-gray-50 flex">
@@ -16,7 +24,7 @@ function App() {
       {/* Main Content */}
       <div className="flex-1 flex flex-col">
         <Topbar />
-        <Tagsbar />
+        {/*<Tagsbar />*/}
         <Editor />
         <StatusBar />
       </div>

@@ -1,5 +1,15 @@
 import { Tag } from 'lucide-react';
+import { useStore } from '../store';
+
 function Tagsbar() {
+  const editingTags = useStore((state) => state.editingTags);
+  const selectedNote = useStore((state) => state.selectedNote);
+  const tempTags = useStore((state) => state.tempTags);
+
+  const setTempTags = useStore((state) => state.setTempTags);
+  const handleTagEdit = useStore((state) => state.handleTagEdit);
+  const saveTagEdit = useStore((state) => state.saveTagEdit);
+
   return (
     <div className="bg-white border-b border-gray-200 p-4">
       <div className="flex items-center gap-2">
@@ -33,7 +43,7 @@ function Tagsbar() {
             )}
             <button
               onClick={handleTagEdit}
-              className="ml-2 text-blue-600 hover:text-blue-700 text-sm"
+              className="ml-2 text-blue-600 hover:text-blue-700 text-sm cursor-pointer"
             >
               Edit
             </button>

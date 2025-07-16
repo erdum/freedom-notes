@@ -1,6 +1,7 @@
-import { create } from 'zustand'
+import { create } from 'zustand';
 
-export const useStore = create((set) => ({
+export const useStore = create((set, get) => ({
+  // State
   searchTerm: '',
   showTagFilter: false,
   selectedFolder: null,
@@ -14,9 +15,10 @@ export const useStore = create((set) => ({
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
     folderId: 'inbox',
-    tags: ['welcome', 'tutorial', 'markdown', 'features']
+    // tags: ['welcome', 'tutorial', 'markdown', 'features']
+    tags: []
   }],
-  selectedNote: notes[0],
+  selectedNote: [],
   isPreview: false,
   sidebarOpen: true,
   editingTitle: false,
@@ -26,55 +28,136 @@ export const useStore = create((set) => ({
   editingTags: false,
   tempTags: '',
 
-  setSearchTerm: (searchTerm) => set(() => ({ searchTerm })),
-  setShowTagFilter: (showTagFilter) => set(
-    () => ({ showTagFilter })
-  ),
-  setSelectedFolder: (selectedFolder) => set(
-    () => ({ selectedFolder })
-  ),
-  setSelectedTag: (selectedTag) => set(
-    () => ({ selectedTag })
-  ),
-  setMarked: (marked) => set(() => ({ marked })),
-  addFolder: (folder) => set(
-    (state) => ({ folders: [...state.folders, folder] })
-  ),
-  setFolders: (folders) => set(
-    () => ({ folders })
-  ),
-  addNote: (note) => set(
-    (state) => ({ notes: [...state.notes, note] })
-  ),
-  setNotes: (notes) => set(
-    () => ({ notes })
-  ),
-  setSelectedNote: (selectedNote) => set(
-    () => ({ selectedNote })
-  ),
-  setIsPreview: (isPreview) => set(
-    () => ({ isPreview })
-  ),
-  setSidebarOpen: (sidebarOpen) => set(
-    () => ({ sidebarOpen })
-  ),
-  setEditingTitle: (editingTitle) => set(
-    () => ({ editingTitle })
-  ),
-  setTempTitle: (tempTitle) => set(
-    () => ({ tempTitle })
-  ),
-  setShowNewFolderForm: (showNewFolderForm) => set(
-    () => ({ showNewFolderForm })
-  ),
-  setNewFolderName: (newFolderName) => set(
-    () => ({ newFolderName })
-  ),
-  setEditingTags: (editingTags) => set(
-    () => ({ editingTags })
-  ),
-  setTempTags: (tempTags) => set(
-    () => ({ tempTags })
-  ),
+  // Setters
+  setSearchTerm: (searchTerm) => set({ searchTerm }),
+  setShowTagFilter: (showTagFilter) => set({ showTagFilter }),
+  setSelectedFolder: (selectedFolder) => {
+    const updatedFolders = get().folders.map((folder) => ({
+      ...folder,
+      expanded: folder.id === selectedFolder,
+    }));
+
+    set({
+      selectedFolder: selectedFolder,
+      folders: updatedFolders,
+    });
+  },
+  setSelectedTag: (selectedTag) => set({ selectedTag }),
+  setMarked: (marked) => set({ marked }),
+  setFolders: (folders) => set({ folders }),
+  setNotes: (notes) => set({ notes }),
+  setSelectedNote: (selectedNote) => set({ selectedNote }),
+  setIsPreview: (isPreview) => set({ isPreview }),
+  setSidebarOpen: (sidebarOpen) => set({ sidebarOpen }),
+  setEditingTitle: (editingTitle) => set({ editingTitle }),
+  setTempTitle: (tempTitle) => set({ tempTitle }),
+  setShowNewFolderForm: (showNewFolderForm) => set({ showNewFolderForm }),
+  setNewFolderName: (newFolderName) => set({ newFolderName }),
+  setEditingTags: (editingTags) => set({ editingTags }),
+  setTempTags: (tempTags) => set({ tempTags }),
+
+  // Actions
+  addFolder: (folder) => set({ folders: [...get().folders, folder] }),
+  addNote: (note) => set({ notes: [...get().notes, note] }),
+
+  // Centralized Logic
+  createNewFolder: () => {
+    const newFolderName = get().newFolderName.trim();
+    if (!newFolderName) return;
+
+    const newFolder = {
+      id: Date.now().toString(),
+      name: newFolderName,
+      expanded: true,
+      color: '#6b7280'
+    };
+
+    get().addFolder(newFolder);
+    set({ newFolderName: '', showNewFolderForm: false });
+  },
+
+  toggleFolder: (folderId) => {
+    const updatedFolders = get().folders.map(folder =>
+      folder.id === folderId
+        ? { ...folder, expanded: !folder.expanded }
+        : folder
+    );
+
+    set({ folders: updatedFolders });
+  },
+
+  createNewNote: (folderId = 'inbox') => {
+    const newNote = {
+      id: Date.now(),
+      title: 'Untitled Note',
+      content: '',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      folderId,
+      tags: []
+    };
+
+    get().addNote(newNote);
+    set({ selectedNote: newNote, isPreview: false });
+  },
+
+  updateNote: (noteId, updates) => {
+    get().setNotes(get().notes.map(note => 
+      note.id === noteId 
+        ? { ...note, ...updates, updatedAt: new Date().toISOString() }
+        : note
+    ));
+    if (get().selectedNote.id === noteId) {
+      get().setSelectedNote({ ...get().selectedNote, ...updates });
+    }
+  },
+
+  moveNoteToFolder: (noteId, folderId) => {
+    get().updateNote(noteId, { folderId });
+  },
+
+  deleteNote: (noteId) => {
+    if (get().notes.length === 1) return;
+    
+    const newNotes = get().notes.filter(note => note.id !== noteId);
+    get().setNotes(newNotes);
+    
+    if (get().selectedNote.id === noteId) {
+      get().setSelectedNote(newNotes[0]);
+    }
+  },
+
+  handleTitleEdit: () => {
+    get().setEditingTitle(true);
+    get().setTempTitle(get().selectedNote.title);
+  },
+
+  saveTitleEdit: () => {
+    if (get().tempTitle.trim()) {
+      get().updateNote(
+        get().selectedNote.id, { title: get().tempTitle.trim() }
+      );
+    }
+    get().setEditingTitle(false);
+  },
+
+  saveTagEdit: () => {
+    const tags = get().tempTags.split(',').map(tag => tag.trim()).filter(tag => tag);
+    get().updateNote(get().selectedNote.id, { tags });
+    get().setEditingTags(false);
+  },
+
+  handleTagEdit: () => {
+    get().setEditingTags(true);
+    get().setTempTags((get().selectedNote.tags || []).join(', '));
+  },
+
+  formatDate: (dateString) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric'
+    });
+  },
 
 }));

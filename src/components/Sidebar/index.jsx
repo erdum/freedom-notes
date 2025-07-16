@@ -1,11 +1,32 @@
+import Header from './Header';
+import Folders from './Folders';
 import { Plus, Folder, X } from 'lucide-react';
+import { useStore } from '../../store';
+
 function Sidebar() {
+  const sidebarOpen = useStore((state) => state.sidebarOpen);
+  const showNewFolderForm = useStore((state) => state.showNewFolderForm);
+  const newFolderName = useStore((state) => state.newFolderName);
+
+  const setNewFolderName = useStore((state) => state.setNewFolderName);
+  const addFolder = useStore((state) => state.addFolder);
+  const setShowNewFolderForm = useStore((state) => state.setShowNewFolderForm);
+  const addNote = useStore((state) => state.addNote);
+  const setSelectedNote = useStore((state) => state.setSelectedNote);
+  const setIsPreview = useStore((state) => state.setIsPreview);
+  const createNewFolder = useStore((state) => state.createNewFolder);
+  const createNewNote = useStore((state) => state.createNewNote);
+
   return (
     <div className={`bg-white border-r border-gray-200 flex flex-col transition-all duration-300 ${
         sidebarOpen ? 'w-80' : 'w-0'
       } overflow-hidden`}>
         
         {/* Header */}
+        <Header />
+
+        {/*Folders*/}
+        <Folders />
 
         {/* New Folder Form */}
         {showNewFolderForm && (
