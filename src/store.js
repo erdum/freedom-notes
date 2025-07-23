@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { db } from './db';
 
 export const useStore = create((set, get) => ({
   // State
@@ -7,17 +8,19 @@ export const useStore = create((set, get) => ({
   selectedFolder: null,
   selectedTag: null,
   marked: null,
-  folders: [{ id: 'inbox', name: 'Inbox', expanded: true, color: '#3b82f6' }],
-  notes: [{
-    id: 1,
-    title: 'Welcome to Freedom Notes',
-    content: `# Welcome to Freedom Notes`,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-    folderId: 'inbox',
-    // tags: ['welcome', 'tutorial', 'markdown', 'features']
-    tags: []
-  }],
+  // folders: [{ id: 'inbox', name: 'Inbox', expanded: true, color: '#3b82f6' }],
+  folders: [],
+  // notes: [{
+  //   id: 1,
+  //   title: 'Welcome to Freedom Notes',
+  //   content: `# Welcome to Freedom Notes`,
+  //   createdAt: new Date().toISOString(),
+  //   updatedAt: new Date().toISOString(),
+  //   folderId: 'inbox',
+  //   // tags: ['welcome', 'tutorial', 'markdown', 'features']
+  //   tags: []
+  // }],
+  notes: [],
   selectedNote: [],
   isPreview: false,
   sidebarOpen: true,
@@ -57,8 +60,18 @@ export const useStore = create((set, get) => ({
   setTempTags: (tempTags) => set({ tempTags }),
 
   // Actions
-  addFolder: (folder) => set({ folders: [...get().folders, folder] }),
-  addNote: (note) => set({ notes: [...get().notes, note] }),
+  addFolder: (folder) => {
+    (async () => {
+      await db.folders.add(folder);
+    })();
+    set({ folders: [...get().folders, folder] })
+  },
+  addNote: (note) => {
+    (async () => {
+      await db.notes.add(note);
+    })();
+    set({ notes: [...get().notes, note] })
+  },
 
   // Centralized Logic
   createNewFolder: () => {
@@ -102,11 +115,17 @@ export const useStore = create((set, get) => ({
   },
 
   updateNote: (noteId, updates) => {
-    get().setNotes(get().notes.map(note => 
-      note.id === noteId 
-        ? { ...note, ...updates, updatedAt: new Date().toISOString() }
-        : note
-    ));
+    (async () => {
+      await db.notes.update(
+        noteId,
+        { ...updates, updatedAt: new Date().toISOString() }
+      );
+    })();
+    const updatedNotes = get().notes.map(
+      note => note.id === noteId ? { ...note, ...updates, updatedAt: new Date().toISOString() } : note
+    );
+    get().setNotes(updatedNotes);
+
     if (get().selectedNote.id === noteId) {
       get().setSelectedNote({ ...get().selectedNote, ...updates });
     }

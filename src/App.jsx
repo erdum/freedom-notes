@@ -6,9 +6,25 @@ import Topbar from './components/Topbar';
 import Tagsbar from './components/Tagsbar';
 import Editor from './components/Editor';
 import StatusBar from './components/StatusBar';
+import { db } from './db';
 
 function App() {
   const setMarked = useStore((state) => state.setMarked);
+  const setNotes = useStore((state) => state.setNotes);
+  const setFolders = useStore((state) => state.setFolders);
+
+  useEffect(() => {
+    const init = async () => {
+      const [notes, folders] = await Promise.all([
+        db.notes.toArray(),
+        db.folders.toArray(),
+      ]);
+      console.log(folders);
+      setNotes(notes);
+      setFolders(folders.length ? folders : useStore.getState().folders);
+    };
+    init();
+  }, []);
 
   // Load marked library on component mount
   useEffect(() => {
