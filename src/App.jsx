@@ -22,7 +22,7 @@ function App() {
       <Sidebar />
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col overflow-hidden">
         <Topbar />
         {/*<Tagsbar />*/}
         <Editor />
