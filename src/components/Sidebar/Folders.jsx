@@ -39,7 +39,7 @@ function Folders() {
   }, {});
 
   return (
-    <div className="flex-1 overflow-y-auto">
+    <div className="flex-1 overflow-y-auto pt-2">
       {folders.map(folder => (
         <div key={folder.id} className="mb-1 overflow-hidden">
           {/* Folder Header */}
