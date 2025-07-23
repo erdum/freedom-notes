@@ -41,7 +41,7 @@ function Folders() {
   return (
     <div className="flex-1 overflow-y-auto">
       {folders.map(folder => (
-        <div key={folder.id} className="mb-1">
+        <div key={folder.id} className="mb-1 overflow-hidden">
           {/* Folder Header */}
           <div 
             className={`flex items-center justify-between p-2 mx-2 rounded cursor-pointer ${
