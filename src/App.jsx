@@ -9,26 +9,31 @@ import StatusBar from './components/StatusBar';
 import { db } from './db';
 
 function App() {
-  const setMarked = useStore((state) => state.setMarked);
-  const setNotes = useStore((state) => state.setNotes);
-  const setFolders = useStore((state) => state.setFolders);
-
   useEffect(() => {
     const init = async () => {
       const [notes, folders] = await Promise.all([
         db.notes.toArray(),
         db.folders.toArray(),
       ]);
-      console.log(folders);
-      setNotes(notes);
-      setFolders(folders.length ? folders : useStore.getState().folders);
+
+      if (folders.length === 0) {
+        useStore.getState().setFolders(useStore.getState().folders);
+      } else {
+        useStore.getState().setFolders(folders);
+      }
+
+      if (notes.length === 0) {
+        useStore.getState().setNotes(useStore.getState().notes);
+      } else {
+        useStore.getState().setNotes(notes);
+      }
     };
     init();
   }, []);
 
   // Load marked library on component mount
   useEffect(() => {
-    loadMarked().then(setMarked);
+    loadMarked().then(useStore.getState().setMarked);
   }, []);
 
   return (

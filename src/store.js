@@ -8,19 +8,17 @@ export const useStore = create((set, get) => ({
   selectedFolder: null,
   selectedTag: null,
   marked: null,
-  // folders: [{ id: 'inbox', name: 'Inbox', expanded: true, color: '#3b82f6' }],
-  folders: [],
-  // notes: [{
-  //   id: 1,
-  //   title: 'Welcome to Freedom Notes',
-  //   content: `# Welcome to Freedom Notes`,
-  //   createdAt: new Date().toISOString(),
-  //   updatedAt: new Date().toISOString(),
-  //   folderId: 'inbox',
-  //   // tags: ['welcome', 'tutorial', 'markdown', 'features']
-  //   tags: []
-  // }],
-  notes: [],
+  folders: [{ id: 'personal', name: 'Personal', expanded: true, color: '#3b82f6' }],
+  notes: [{
+    id: 1,
+    title: 'Welcome to Freedom Notes',
+    content: `# Welcome to Freedom Notes`,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    folderId: 'personal',
+    // tags: ['welcome', 'tutorial', 'markdown', 'features']
+    tags: []
+  }],
   selectedNote: [],
   isPreview: false,
   sidebarOpen: true,
@@ -47,8 +45,18 @@ export const useStore = create((set, get) => ({
   },
   setSelectedTag: (selectedTag) => set({ selectedTag }),
   setMarked: (marked) => set({ marked }),
-  setFolders: (folders) => set({ folders }),
-  setNotes: (notes) => set({ notes }),
+  setFolders: (folders) => {
+    (async () => {
+      await db.folders.bulkPut(folders);
+    })();
+    set({ folders });
+  },
+  setNotes: (notes) => {
+    (async () => {
+      await db.notes.bulkPut(notes);
+    })();
+    set({ notes });
+  },
   setSelectedNote: (selectedNote) => set({ selectedNote }),
   setIsPreview: (isPreview) => set({ isPreview }),
   setSidebarOpen: (sidebarOpen) => set({ sidebarOpen }),
