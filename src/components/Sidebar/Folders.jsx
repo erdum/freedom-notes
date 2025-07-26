@@ -55,14 +55,8 @@ function Folders() {
             }}
           >
             <div className="flex items-center gap-2">
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  toggleFolder(folder.id);
-                }}
-                className="p-1 hover:bg-gray-200 rounded"
-              >
-                {folder.expanded ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
+              <button className="p-1 rounded cursor-pointer">
+                {(searchTerm != '' ? ((notesByFolder[folder.id] || []).length > 0) : folder.expanded) ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
               </button>
               <div className="flex items-center gap-2">
                 <div 
@@ -78,7 +72,7 @@ function Folders() {
           </div>
 
           {/* Notes in Folder */}
-          {folder.expanded && (
+          {(searchTerm != '' ? ((notesByFolder[folder.id] || []).length > 0) : folder.expanded) && (
             <div className="ml-4">
               {(notesByFolder[folder.id] || []).map(note => (
                 <div
