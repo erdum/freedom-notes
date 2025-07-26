@@ -44,9 +44,10 @@ function Folders() {
         <div key={folder.id} className="mb-1 overflow-hidden">
           {/* Folder Header */}
           <div 
-            className={`flex items-center justify-between p-2 mx-2 rounded cursor-pointer ${
-              selectedFolder === folder.id ? 'bg-blue-100' : 'hover:bg-gray-100'
+            className={`group flex items-center justify-between p-2 mx-2 mb-1 rounded cursor-pointer ${
+              selectedFolder !== folder.id ? 'hover:bg-gray-100' : ''
             }`}
+            style={{ backgroundColor: selectedFolder === folder.id ? `${folder.color}2f` : '' }}
             onClick={() => {
               setSelectedFolder(selectedFolder === folder.id ? null : folder.id);
               // setSelectedTag(null);

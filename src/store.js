@@ -26,6 +26,7 @@ export const useStore = create((set, get) => ({
   tempTitle: '',
   showNewFolderForm: false,
   newFolderName: '',
+  newFolderColor: '',
   editingTags: false,
   tempTags: '',
 
@@ -64,6 +65,7 @@ export const useStore = create((set, get) => ({
   setTempTitle: (tempTitle) => set({ tempTitle }),
   setShowNewFolderForm: (showNewFolderForm) => set({ showNewFolderForm }),
   setNewFolderName: (newFolderName) => set({ newFolderName }),
+  setNewFolderColor: (newFolderColor) => set({ newFolderColor }),
   setEditingTags: (editingTags) => set({ editingTags }),
   setTempTags: (tempTags) => set({ tempTags }),
 
@@ -90,7 +92,7 @@ export const useStore = create((set, get) => ({
       id: newFolderName.toLowerCase(),
       name: newFolderName,
       expanded: true,
-      color: '#6b7280'
+      color: get().newFolderColor
     };
 
     get().addFolder(newFolder);
