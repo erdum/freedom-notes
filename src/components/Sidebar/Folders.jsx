@@ -24,10 +24,11 @@ function Folders() {
       note.title.toLowerCase().includes(searchTerm.toLowerCase())
       || note.content.toLowerCase().includes(searchTerm.toLowerCase());
     
-    const matchesFolder = selectedFolder ? note.folderId === selectedFolder : true;
+    // const matchesFolder = selectedFolder ? note.folderId === selectedFolder : true;
     const matchesTag = selectedTag ? (note.tags || []).includes(selectedTag) : true;
     
-    return matchesSearch && matchesFolder && matchesTag;
+    // return matchesSearch && matchesFolder && matchesTag;
+    return matchesSearch && matchesTag;
   });
 
   const notesByFolder = filteredNotes.reduce((acc, note) => {
