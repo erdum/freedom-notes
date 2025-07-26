@@ -148,7 +148,14 @@ export const useStore = create((set, get) => ({
   deleteNote: (noteId) => {
     if (get().notes.length === 1) return;
     
-    const newNotes = get().notes.filter(note => note.id !== noteId);
+    const newNotes = get().notes.filter(note => {
+
+      if (note.id !== noteId) (async () => {
+        await db.notes.delete(noteId);
+      })();
+
+      return note.id !== noteId
+    });
     get().setNotes(newNotes);
     
     if (get().selectedNote.id === noteId) {
