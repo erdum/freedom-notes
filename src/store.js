@@ -87,7 +87,7 @@ export const useStore = create((set, get) => ({
     if (!newFolderName) return;
 
     const newFolder = {
-      id: Date.now().toString(),
+      id: newFolderName.toLowerCase(),
       name: newFolderName,
       expanded: true,
       color: '#6b7280'
