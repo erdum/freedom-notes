@@ -58,7 +58,13 @@ export const useStore = create((set, get) => ({
     })();
     set({ notes });
   },
-  setSelectedNote: (selectedNote) => set({ selectedNote }),
+  setSelectedNote: (selectedNote) => {
+    (async () => {
+      const note = await db.notes.get(selectedNote);
+      note?.folderId && get().setSelectedFolder(note.folderId);
+    })();
+    set({ selectedNote });
+  },
   setIsPreview: (isPreview) => set({ isPreview }),
   setSidebarOpen: (sidebarOpen) => set({ sidebarOpen }),
   setEditingTitle: (editingTitle) => set({ editingTitle }),
