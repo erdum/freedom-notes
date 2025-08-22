@@ -1,5 +1,5 @@
 import { useMemo, useState, useRef } from 'react';
-import { Menu, Eye, Edit3, Settings, Tag, Upload, ChevronDown } from 'lucide-react';
+import { Menu, Eye, Edit3, Settings, FolderSync, Upload, ChevronDown } from 'lucide-react';
 import { useStore } from '../store';
 
 function Topbar() {
@@ -201,27 +201,39 @@ function Topbar() {
             {isPreview ? <Edit3 className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
           </button>
           
-          {showSettingsDropdown && (
-            <div className="absolute right-0 top-full mt-1 w-56 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
-              <div className="py-1">
-                <button
-                  onClick={handleImportKeepData}
-                  className="w-full px-4 py-2 text-left text-sm hover:bg-gray-50 flex items-center gap-2"
-                >
-                  <Upload className="w-4 h-4" />
-                  Import Google Keep Notes
-                </button>
-                
-                {/* Add more settings options here */}
-                <div className="border-t border-gray-100 my-1"></div>
-                
-                {/*<button
-                  onClick={() => setShowSettingsDropdown(false)}
-                  className="w-full px-4 py-2 text-left text-sm hover:bg-gray-50 flex items-center gap-2"
-                >
-                  <Tag className="w-4 h-4" />
-                  Manage Labels
-                </button>*/}
+          {/* Settings Dropdown */}
+          <div className="relative">
+            <button
+              tabIndex={2}
+              onClick={() => setShowSettingsDropdown(!showSettingsDropdown)}
+              className="p-2 hover:bg-gray-100 rounded flex items-center gap-1"
+            >
+              <Settings className="w-5 h-5" />
+              <ChevronDown className="w-3 h-3" />
+            </button>
+            
+            {showSettingsDropdown && (
+              <div className="absolute right-0 top-full mt-1 w-56 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
+                <div className="py-1">
+                  <button
+                    onClick={handleImportKeepData}
+                    className="w-full px-4 py-2 text-left text-sm hover:bg-gray-100 flex items-center gap-2 cursor-pointer"
+                  >
+                    <Upload className="w-4 h-4" />
+                    Import Google Keep Notes
+                  </button>
+                  
+                  {/* Add more settings options here */}
+                  <div className="border-t border-gray-100 my-1"></div>
+                  
+                  <button
+                    onClick={() => setShowSettingsDropdown(false)}
+                    className="w-full px-4 py-2 text-left text-sm hover:bg-gray-100 flex items-center gap-2 cursor-pointer"
+                  >
+                    <FolderSync className="w-4 h-4" />
+                    Sync with Server
+                  </button>
+                </div>
               </div>
             )}
           </div>
