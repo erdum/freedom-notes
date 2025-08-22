@@ -130,7 +130,7 @@ export const useStore = create((set, get) => ({
 
     get().addNote(newNote);
     get().setSelectedNote(newNote);
-    set({ isPreview: false });
+    set({ isPreview: false, tempTitle: '', tempContent: '' });
   },
 
   updateNote: (noteId, updates) => {
