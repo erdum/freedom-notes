@@ -1,4 +1,33 @@
-import { ChevronDown, ChevronRight, Trash2, Plus } from 'lucide-react';
+import {
+  ChevronDown,
+  ChevronRight,
+  Trash2,
+  Plus,
+  FolderInput
+} from 'lucide-react';
+import { useState } from 'react';
+import { Button } from "@/components/ui/button"
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import { useStore } from '../../store';
 
 function Folders() {
@@ -13,9 +42,6 @@ function Folders() {
   // const setSelectedTag = useStore((state) => state.setSelectedTag);
   const setSelectedNote = useStore((state) => state.setSelectedNote);
   const createNewNote = useStore((state) => state.createNewNote);
-  const toggleFolder = useStore((state) => state.toggleFolder);
-  const updateNote = useStore((state) => state.updateNote);
-  const moveNoteToFolder = useStore((state) => state.moveNoteToFolder);
   const deleteNote = useStore((state) => state.deleteNote);
   const formatDate = useStore((state) => state.formatDate);
 
@@ -39,37 +65,79 @@ function Folders() {
     return acc;
   }, {});
 
-  return (
-    <div className="flex-1 overflow-y-auto pt-2">
-      {folders.map(folder => (
-        <div key={folder.id} className="mb-1 overflow-hidden">
-          {/* Folder Header */}
-          <div 
-            className={`group flex items-center justify-between p-2 mx-2 mb-1 rounded cursor-pointer ${
-              selectedFolder !== folder.id ? 'hover:bg-gray-100' : ''
-            }`}
-            style={{ backgroundColor: selectedFolder === folder.id ? `${folder.color}2f` : '' }}
-            onClick={() => {
-              setSelectedFolder(selectedFolder === folder.id ? null : folder.id);
-              // setSelectedTag(null);
-            }}
-          >
-            <div className="flex items-center gap-2">
-              <button className="p-1 rounded cursor-pointer">
-                {(searchTerm != '' ? ((notesByFolder[folder.id] || []).length > 0) : folder.expanded) ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
-              </button>
-              <div className="flex items-center gap-2">
-                <div 
-                  className="w-3 h-3 rounded-full"
-                  style={{ backgroundColor: folder.color }}
-                />
-                <span className="text-sm font-medium text-gray-700">{folder.name}</span>
+  const [openMoveNoteModal, setOpenMoveNoteModal] = useState(false);
+
+  const MoveNoteModal = () => {
+    return (
+      <Dialog open={openMoveNoteModal} onOpenChange={setOpenMoveNoteModal}>
+        <form>
+          <DialogContent className="sm:max-w-[425px]">
+            <DialogHeader>
+              <DialogTitle>Move note</DialogTitle>
+              <DialogDescription>
+                Select the folder where you want to move the note. Click save when you&apos;re
+                done.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="grid gap-4">
+              <div className="grid gap-3">
+                <Label htmlFor="move-to-folder">Folder</Label>
+                <Select id="move-to-folder" name="move-to-folder">
+                  <SelectTrigger className="w-[280px]">
+                    <SelectValue placeholder="Select a folder" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {folders.map((folder) => (
+                      <SelectItem key={folder.id} value={folder.id}>{folder.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
             </div>
-            <span className="text-xs text-gray-500">
-              {(notesByFolder[folder.id] || []).length}
-            </span>
-          </div>
+            <DialogFooter>
+              <DialogClose asChild>
+                <Button variant="outline">Cancel</Button>
+              </DialogClose>
+              <Button type="submit">Save changes</Button>
+            </DialogFooter>
+          </DialogContent>
+        </form>
+      </Dialog>
+    )
+  };
+
+  return (
+    <>
+      <div className="flex-1 overflow-y-auto pt-2">
+        {folders.map(folder => (
+          <div key={folder.id} className="mb-1 overflow-hidden">
+            {/* Folder Header */}
+            <div 
+              className={`group flex items-center justify-between p-2 mx-2 mb-1 rounded cursor-pointer ${
+                selectedFolder !== folder.id ? 'hover:bg-gray-100' : ''
+              }`}
+              style={{ backgroundColor: selectedFolder === folder.id ? `${folder.color}2f` : '' }}
+              onClick={() => {
+                setSelectedFolder(selectedFolder === folder.id ? null : folder.id);
+                // setSelectedTag(null);
+              }}
+            >
+              <div className="flex items-center gap-2">
+                <button className="p-1 rounded cursor-pointer">
+                  {(searchTerm != '' ? ((notesByFolder[folder.id] || []).length > 0) : folder.expanded) ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
+                </button>
+                <div className="flex items-center gap-2">
+                  <div 
+                    className="w-3 h-3 rounded-full"
+                    style={{ backgroundColor: folder.color }}
+                  />
+                  <span className="text-sm font-medium text-gray-700">{folder.name}</span>
+                </div>
+              </div>
+              <span className="text-xs text-gray-500">
+                {(notesByFolder[folder.id] || []).length}
+              </span>
+            </div>
 
             {/* Notes in Folder */}
             {(searchTerm != '' ? ((notesByFolder[folder.id] || []).length > 0) : folder.expanded) && (
@@ -113,56 +181,40 @@ function Folders() {
                             }}
                             className="p-1 hover:bg-gray-200 rounded cursor-pointer"
                             >
-                              #{tag}
-                            </span>
-                          ))}
-                          {note.tags.length > 3 && (
-                            <span className="text-xs text-gray-400">+{note.tags.length - 3}</span>
-                          )}
+                            <FolderInput className="w-4 h-4 text-gray-600" />
+                          </button>
+                          <button onClick={(e) => {
+                              e.stopPropagation();
+
+                              if (window.confirm("Are you sure you want to delete the note?")) {
+                                deleteNote(note.id);
+                              }
+                            }}
+                            className="p-1 hover:bg-red-100 rounded cursor-pointer"
+                            >
+                            <Trash2 className="w-4 h-4 text-red-500" />
+                          </button>
                         </div>
-                      )}
-                      <p className="text-xs text-gray-400 mt-2">
-                        {formatDate(note.updatedAt)}
-                      </p>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <select
-                        value={note.folderId}
-                        onChange={(e) => moveNoteToFolder(note.id, e.target.value)}
-                        onClick={(e) => e.stopPropagation()}
-                        className="text-xs bg-transparent border-none focus:outline-none"
-                      >
-                        {folders.map(f => (
-                          <option disabled={f.id === note.folderId} key={f.id} value={f.id}>{f.name}</option>
-                        ))}
-                      </select>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          deleteNote(note.id);
-                        }}
-                        className="p-1 hover:bg-red-100 rounded cursor-pointer"
-                      >
-                        <Trash2 className="w-3 h-3 text-red-500" />
-                      </button>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
-              
-              {/* Add note to folder */}
-              <button
-                onClick={() => createNewNote(folder.id)}
-                className="w-full mx-2 mt-2 p-2 text-sm text-gray-500 hover:bg-gray-50 rounded flex items-center gap-2"
-              >
-                <Plus className="w-4 h-4" />
-                Add note to {folder.name}
-              </button>
-            </div>
-          )}
-        </div>
-      ))}
-    </div>
+                ))}
+                
+                {/* Add note to folder */}
+                <button
+                  onClick={() => createNewNote(folder.id)}
+                  className="w-full mx-2 mt-2 p-2 text-sm text-gray-500 hover:bg-gray-50 rounded flex items-center gap-2"
+                >
+                  <Plus className="w-4 h-4" />
+                  Add note to {folder.name}
+                </button>
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+      <MoveNoteModal />
+    </>
   );
 }
 
