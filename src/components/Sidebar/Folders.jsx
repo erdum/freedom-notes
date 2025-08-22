@@ -71,29 +71,47 @@ function Folders() {
             </span>
           </div>
 
-          {/* Notes in Folder */}
-          {(searchTerm != '' ? ((notesByFolder[folder.id] || []).length > 0) : folder.expanded) && (
-            <div className="ml-4">
-              {(notesByFolder[folder.id] || []).map(note => (
-                <div
-                  key={note.id}
-                  onClick={() => setSelectedNote(note)}
-                  className={`p-3 mx-2 rounded cursor-pointer hover:bg-gray-50 ${
-                    selectedNote.id === note.id ? 'bg-blue-50 border-l-4 border-l-blue-500' : ''
-                  }`}
-                >
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1 min-w-0">
-                      <h3 className="font-medium text-gray-900 text-sm truncate">{note.title}</h3>
-                      <p className="text-xs text-gray-500 mt-1 line-clamp-2">
-                        {note.content.substring(0, 80)}...
-                      </p>
-                      {note.tags && note.tags.length > 0 && (
-                        <div className="flex flex-wrap gap-1 mt-2">
-                          {note.tags.slice(0, 3).map(tag => (
-                            <span
-                              key={tag}
-                              className="px-2 py-1 bg-gray-100 text-gray-600 rounded-full text-xs"
+            {/* Notes in Folder */}
+            {(searchTerm != '' ? ((notesByFolder[folder.id] || []).length > 0) : folder.expanded) && (
+              <div className="ml-4">
+                {(notesByFolder[folder.id] || []).map(note => (
+                  <div
+                    key={note.id}
+                    onClick={() => setSelectedNote(note)}
+                    className={`p-3 mx-2 rounded cursor-pointer hover:bg-gray-50 ${
+                      selectedNote.id === note.id ? 'bg-blue-50 border-l-4 border-l-blue-500' : ''
+                    }`}
+                  >
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-medium text-gray-900 text-sm line-clamp-2 overflow-hidden">{note.title}</h3>
+                        <p className="text-xs text-gray-500 mt-1 line-clamp-3 overflow-hidden">
+                          {note.content.substring(0, 130)}...
+                        </p>
+                        {note.tags && note.tags.length > 0 && (
+                          <div className="flex flex-wrap gap-1 mt-2">
+                            {note.tags.slice(0, 3).map(tag => (
+                              <span
+                                key={tag}
+                                className="px-2 py-1 bg-gray-100 text-gray-600 rounded-full text-xs"
+                              >
+                                #{tag}
+                              </span>
+                            ))}
+                            {note.tags.length > 3 && (
+                              <span className="text-xs text-gray-400">+{note.tags.length - 3}</span>
+                            )}
+                          </div>
+                        )}
+                        <div className="flex items-center gap-1 mt-2">
+                          <p className="text-xs text-gray-400 mr-auto grow-2">
+                            {formatDate(note.updatedAt)}
+                          </p>
+                          <button
+                            onClick={(e) => {
+                              setOpenMoveNoteModal(true);
+                            }}
+                            className="p-1 hover:bg-gray-200 rounded cursor-pointer"
                             >
                               #{tag}
                             </span>
