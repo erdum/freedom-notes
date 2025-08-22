@@ -29,6 +29,7 @@ export const useStore = create((set, get) => ({
   newFolderColor: '',
   editingTags: false,
   tempTags: '',
+  tempContent: '',
 
   // Setters
   setSearchTerm: (searchTerm) => set({ searchTerm }),
@@ -74,6 +75,7 @@ export const useStore = create((set, get) => ({
   setNewFolderColor: (newFolderColor) => set({ newFolderColor }),
   setEditingTags: (editingTags) => set({ editingTags }),
   setTempTags: (tempTags) => set({ tempTags }),
+  setTempContent: (tempContent) => set({ tempContent }),
 
   // Actions
   addFolder: (folder) => {
@@ -118,8 +120,8 @@ export const useStore = create((set, get) => ({
   createNewNote: (folderId = 'inbox') => {
     const newNote = {
       id: Date.now(),
-      title: 'Untitled Note',
-      content: '',
+      title: get().tempTitle.trim() ?? 'Untitled Note',
+      content: get().tempContent ?? '',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
       folderId,
@@ -127,7 +129,8 @@ export const useStore = create((set, get) => ({
     };
 
     get().addNote(newNote);
-    set({ selectedNote: newNote, isPreview: false });
+    get().setSelectedNote(newNote);
+    set({ isPreview: false });
   },
 
   updateNote: (noteId, updates) => {

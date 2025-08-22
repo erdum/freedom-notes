@@ -3,20 +3,25 @@ import { parseMarkdown } from '../markdown';
 
 function Editor() {
   const isPreview = useStore((state) => state.isPreview);
-  const notes = useStore((state) => state.notes);
   const selectedNote = useStore((state) => state.selectedNote);
-  const setSelectedNote = useStore((state) => state.setSelectedNote);
-  const setNotes = useStore((state) => state.setNotes);
   const marked = useStore((state) => state.marked);
   const updateNote = useStore((state) => state.updateNote);
+  const setTempContent = useStore((state) => state.setTempContent);
 
   return (
     <div className="flex-1 flex">
       {/* Editor */}
       <div className={`${isPreview ? 'w-1/2' : 'w-full'} flex flex-col`}>
         <textarea
+          tabIndex={0}
           value={selectedNote.content}
-          onChange={(e) => updateNote(selectedNote.id, { content: e.target.value })}
+          onChange={(e) => {
+            if (selectedNote?.id) {
+              updateNote(selectedNote.id, { content: e.target.value });
+            } else {
+              setTempContent(e.target.value);
+            }
+          }}
           placeholder="Start writing your note..."
           className="flex-1 p-6 resize-none focus:outline-none font-mono text-sm leading-relaxed"
         />

@@ -11,7 +11,6 @@ function Sidebar() {
 
   const setNewFolderName = useStore((state) => state.setNewFolderName);
   const setNewFolderColor = useStore((state) => state.setNewFolderColor);
-  const addFolder = useStore((state) => state.addFolder);
   const setShowNewFolderForm = useStore((state) => state.setShowNewFolderForm);
   const setSelectedNote = useStore((state) => state.setSelectedNote);
   const setIsPreview = useStore((state) => state.setIsPreview);
