@@ -12,7 +12,7 @@ function Editor() {
   return (
     <div className="flex-1 flex">
       {/* Editor */}
-      <div className={`${isPreview ? 'w-1/2' : 'w-full'} flex flex-col`}>
+      <div className={`${isPreview ? 'w-0 md:w-1/2' : 'w-full'} transition-all flex flex-col`}>
         <textarea
           tabIndex={0}
           value={selectedNote.content ?? tempContent}
@@ -30,7 +30,7 @@ function Editor() {
 
       {/* Live Preview */}
       {isPreview && (
-        <div className="w-1/2 border-l border-gray-200 bg-white">
+        <div className="w-full md:w-1/2 border-l border-gray-200 bg-white">
           <div className="p-6 overflow-y-auto h-full">
             {marked ? (
               <div 
