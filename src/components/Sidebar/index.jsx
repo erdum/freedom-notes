@@ -12,10 +12,10 @@ function Sidebar() {
   const setNewFolderName = useStore((state) => state.setNewFolderName);
   const setNewFolderColor = useStore((state) => state.setNewFolderColor);
   const setShowNewFolderForm = useStore((state) => state.setShowNewFolderForm);
-  const setSelectedNote = useStore((state) => state.setSelectedNote);
   const setIsPreview = useStore((state) => state.setIsPreview);
   const createNewFolder = useStore((state) => state.createNewFolder);
   const createNewNote = useStore((state) => state.createNewNote);
+  const setupNewNote = useStore((state) => state.setupNewNote);
 
   return (
     <div className={`bg-white border-r border-gray-200 flex flex-col transition-all duration-300 overflow-hidden shrink-0 ${sidebarOpen ? 'w-screen md:w-80' : 'w-0'} overflow-hidden`}>
@@ -69,7 +69,7 @@ function Sidebar() {
       <div className="p-4 border-t border-gray-200">
         <div className="flex gap-2">
           <button
-            onClick={() => createNewNote()}
+            onClick={() => setupNewNote()}
             className="flex-1 flex items-center justify-center gap-2 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors"
           >
             <Plus className="w-4 h-4" />

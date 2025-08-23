@@ -19,7 +19,7 @@ export const useStore = create((set, get) => ({
     // tags: ['welcome', 'tutorial', 'markdown', 'features']
     tags: []
   }],
-  selectedNote: [],
+  selectedNote: {},
   isPreview: false,
   sidebarOpen: true,
   editingTitle: false,
@@ -60,10 +60,7 @@ export const useStore = create((set, get) => ({
     set({ notes });
   },
   setSelectedNote: (selectedNote) => {
-    (async () => {
-      const note = await db.notes.get(selectedNote);
-      note?.folderId && get().setSelectedFolder(note.folderId);
-    })();
+    get().setSelectedFolder(selectedNote.folderId);
     set({ selectedNote });
   },
   setIsPreview: (isPreview) => set({ isPreview }),
@@ -115,6 +112,13 @@ export const useStore = create((set, get) => ({
     );
 
     set({ folders: updatedFolders });
+  },
+
+  setupNewNote: () => {
+    set({
+      selectedNote: {},
+      selectedFolder: null,
+    });
   },
 
   createNewNote: (folderId = 'inbox') => {

@@ -4,6 +4,7 @@ import { parseMarkdown } from '../markdown';
 function Editor() {
   const isPreview = useStore((state) => state.isPreview);
   const selectedNote = useStore((state) => state.selectedNote);
+  const tempContent = useStore((state) => state.tempContent);
   const marked = useStore((state) => state.marked);
   const updateNote = useStore((state) => state.updateNote);
   const setTempContent = useStore((state) => state.setTempContent);
@@ -14,7 +15,7 @@ function Editor() {
       <div className={`${isPreview ? 'w-1/2' : 'w-full'} flex flex-col`}>
         <textarea
           tabIndex={0}
-          value={selectedNote.content}
+          value={selectedNote.content ?? tempContent}
           onChange={(e) => {
             if (selectedNote?.id) {
               updateNote(selectedNote.id, { content: e.target.value });
