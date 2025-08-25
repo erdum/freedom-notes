@@ -120,6 +120,7 @@ function Folders() {
                     moveNoteToFolder(selectedNote, targetFolderId);
                     setOpenMoveNoteModal(false);
                   }
+                  setTargetFolderId("def");
                 }}
                 className="bg-blue-600 cursor-pointer hover:bg-blue-700 transition-colors"
                 type="submit"
