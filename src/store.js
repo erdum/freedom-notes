@@ -154,8 +154,9 @@ export const useStore = create((set, get) => ({
     }
   },
 
-  moveNoteToFolder: (noteId, folderId) => {
-    get().updateNote(noteId, { folderId });
+  moveNoteToFolder: (selectedNote, folderId) => {
+    get().updateNote(selectedNote.id, { folderId });
+    get().setSelectedFolder(folderId);
   },
 
   deleteNote: (noteId) => {

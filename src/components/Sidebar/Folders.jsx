@@ -5,7 +5,7 @@ import {
   Plus,
   FolderInput
 } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -44,6 +44,7 @@ function Folders() {
   const createNewNote = useStore((state) => state.createNewNote);
   const deleteNote = useStore((state) => state.deleteNote);
   const formatDate = useStore((state) => state.formatDate);
+  const moveNoteToFolder = useStore((state) => state.moveNoteToFolder);
 
   const filteredNotes = notes.filter(note => {
     const matchesSearch = 
@@ -66,8 +67,9 @@ function Folders() {
   }, {});
 
   const [openMoveNoteModal, setOpenMoveNoteModal] = useState(false);
+  const [targetFolderId, setTargetFolderId] = useState("def");
 
-  const MoveNoteModal = () => {
+  const MoveNoteModal = useCallback(() => {
     return (
       <Dialog open={openMoveNoteModal} onOpenChange={setOpenMoveNoteModal}>
         <form>
@@ -82,13 +84,25 @@ function Folders() {
             <div className="grid gap-4">
               <div className="grid gap-3">
                 <Label htmlFor="move-to-folder">Folder</Label>
-                <Select id="move-to-folder" name="move-to-folder">
+                <Select
+                  id="move-to-folder"
+                  name="move-to-folder"
+                  onValueChange={(value) => setTargetFolderId(value)}
+                  value={targetFolderId}
+                >
                   <SelectTrigger className="w-[280px]">
                     <SelectValue placeholder="Select a folder" />
                   </SelectTrigger>
                   <SelectContent>
+                    <SelectItem disabled value="def">Select a folder</SelectItem>
                     {folders.map((folder) => (
-                      <SelectItem key={folder.id} value={folder.id}>{folder.name}</SelectItem>
+                      <SelectItem
+                        disabled={folder.id == openMoveNoteModal}
+                        key={folder.id}
+                        value={folder.id}
+                      >
+                        {folder.name}
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -96,15 +110,28 @@ function Folders() {
             </div>
             <DialogFooter>
               <DialogClose asChild>
-                <Button variant="outline">Cancel</Button>
+                <Button className="cursor-pointer" variant="outline">Cancel</Button>
               </DialogClose>
-              <Button type="submit">Save changes</Button>
+              <Button
+                onClick={(e) => {
+                  e.preventDefault();
+
+                  if (targetFolderId) {
+                    moveNoteToFolder(selectedNote, targetFolderId);
+                    setOpenMoveNoteModal(false);
+                  }
+                }}
+                className="bg-blue-600 cursor-pointer hover:bg-blue-700 transition-colors"
+                type="submit"
+              >
+                Save changes
+              </Button>
             </DialogFooter>
           </DialogContent>
         </form>
       </Dialog>
     )
-  };
+  }, [openMoveNoteModal, targetFolderId, selectedNote]);
 
   return (
     <>
@@ -177,7 +204,7 @@ function Folders() {
                           </p>
                           <button
                             onClick={(e) => {
-                              setOpenMoveNoteModal(true);
+                              setOpenMoveNoteModal(folder.id);
                             }}
                             className="p-1 hover:bg-gray-200 rounded cursor-pointer"
                             >
