@@ -8,14 +8,14 @@ export const useStore = create((set, get) => ({
   selectedFolder: null,
   selectedTag: null,
   marked: null,
-  folders: [{ id: 'personal', name: 'Personal', expanded: true, color: '#3b82f6' }],
+  folders: [{ id: 'misc', name: 'Misc', expanded: true, color: '#3b82f6' }],
   notes: [{
     id: 1,
     title: 'Welcome to Freedom Notes',
     content: `# Welcome to Freedom Notes`,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
-    folderId: 'personal',
+    folderId: 'misc',
     // tags: ['welcome', 'tutorial', 'markdown', 'features']
     tags: []
   }],
@@ -34,14 +34,14 @@ export const useStore = create((set, get) => ({
   // Setters
   setSearchTerm: (searchTerm) => set({ searchTerm }),
   setShowTagFilter: (showTagFilter) => set({ showTagFilter }),
-  setSelectedFolder: (selectedFolder) => {
+  setSelectedFolder: (selectedFolderId) => {
     const updatedFolders = get().folders.map((folder) => ({
       ...folder,
-      expanded: folder.id === selectedFolder,
+      expanded: folder.id === selectedFolderId,
     }));
 
     set({
-      selectedFolder: selectedFolder,
+      selectedFolder: selectedFolderId,
       folders: updatedFolders,
     });
   },
@@ -79,13 +79,13 @@ export const useStore = create((set, get) => ({
     (async () => {
       await db.folders.add(folder);
     })();
-    set({ folders: [...get().folders, folder] })
+    set({ folders: [...get().folders, folder] });
   },
   addNote: (note) => {
     (async () => {
       await db.notes.add(note);
     })();
-    set({ notes: [...get().notes, note] })
+    set({ notes: [...get().notes, note] });
   },
 
   // Centralized Logic
@@ -121,7 +121,7 @@ export const useStore = create((set, get) => ({
     });
   },
 
-  createNewNote: (folderId = 'inbox') => {
+  createNewNote: (folderId = 'misc') => {
     const newNote = {
       id: Date.now(),
       title: get().tempTitle.trim() ?? 'Untitled Note',
@@ -159,12 +159,48 @@ export const useStore = create((set, get) => ({
     get().setSelectedFolder(folderId);
   },
 
+  renameFolder: (folder, newFolderName) => {
+    if (!newFolderName.trim()) return;
+
+    (async () => {
+      await db.folders.update(
+        folder.id,
+        { ...folder, name: newFolderName }
+      );
+    })();
+    const currentFolderId = folder.id;
+
+    const updatedFolders = get().folders.map(
+      folder => folder.id === currentFolderId ? { ...folder, name: newFolderName } : folder
+    );
+    get().setFolders(updatedFolders);
+  },
+
+  deleteFolder: (folderId) => {
+    (async () => {
+      await db.notes.where("folderId").equals(folderId).modify({ folderId: 'misc' });
+    })();
+    // Update notes
+
+    const updatedFolders = get().folders.filter(folder => {
+
+      if (folder.id === folderId) (async () => {
+        await db.folders.delete(folderId);
+      })();
+
+      return folder.id !== folderId
+    });
+    get().setFolders(updatedFolders);
+
+    if (get().selectedFolder === folderId) {
+      get().setSelectedNote(get().notes[0]);
+    }
+  },
+
   deleteNote: (noteId) => {
-    if (get().notes.length === 1) return;
-    
     const newNotes = get().notes.filter(note => {
 
-      if (note.id !== noteId) (async () => {
+      if (note.id === noteId) (async () => {
         await db.notes.delete(noteId);
       })();
 

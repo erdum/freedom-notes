@@ -3,7 +3,8 @@ import {
   ChevronRight,
   Trash2,
   Plus,
-  FolderInput
+  FolderInput,
+  EllipsisVertical
 } from 'lucide-react';
 import { useState, useCallback } from 'react';
 import { Button } from "@/components/ui/button"
@@ -28,6 +29,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 import { useStore } from '../../store';
 
 function Folders() {
@@ -45,6 +52,8 @@ function Folders() {
   const deleteNote = useStore((state) => state.deleteNote);
   const formatDate = useStore((state) => state.formatDate);
   const moveNoteToFolder = useStore((state) => state.moveNoteToFolder);
+  const renameFolder = useStore((state) => state.renameFolder);
+  const deleteFolder = useStore((state) => state.deleteFolder);
 
   const filteredNotes = notes.filter(note => {
     const matchesSearch = 
@@ -68,10 +77,12 @@ function Folders() {
 
   const [openMoveNoteModal, setOpenMoveNoteModal] = useState(false);
   const [targetFolderId, setTargetFolderId] = useState("def");
+  const [openRenameFolderModal, setOpenRenameFolderModal] = useState(false);
+  const [newFolderName, setNewFolderName] = useState("");
 
   const MoveNoteModal = useCallback(() => {
     return (
-      <Dialog open={openMoveNoteModal} onOpenChange={setOpenMoveNoteModal}>
+      <Dialog open={!!openMoveNoteModal} onOpenChange={setOpenMoveNoteModal}>
         <form>
           <DialogContent className="sm:max-w-[425px]">
             <DialogHeader>
@@ -134,6 +145,55 @@ function Folders() {
     )
   }, [openMoveNoteModal, targetFolderId, selectedNote]);
 
+  const RenameFolderModal = useCallback(() => {
+    return (
+      <Dialog open={!!openRenameFolderModal} onOpenChange={setOpenRenameFolderModal}>
+        <form>
+          <DialogContent className="sm:max-w-[425px]">
+            <DialogHeader>
+              <DialogTitle>Rename folder</DialogTitle>
+              <DialogDescription>
+                Enter a new name for this folder. Click save when you&apos;re done.
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="grid gap-4">
+              <div className="grid gap-3">
+                <Label htmlFor="folder-name">Folder name</Label>
+                <Input
+                  id="folder-name"
+                  value={newFolderName}
+                  onChange={(e) => setNewFolderName(e.target.value)}
+                  placeholder="Enter folder name"
+                />
+              </div>
+            </div>
+
+            <DialogFooter>
+              <DialogClose asChild>
+                <Button className="cursor-pointer" variant="outline">Cancel</Button>
+              </DialogClose>
+              <Button
+                onClick={(e) => {
+                  e.preventDefault();
+                  if (openRenameFolderModal && newFolderName.trim()) {
+                    renameFolder(openRenameFolderModal, newFolderName);
+                    setOpenRenameFolderModal(false);
+                    setNewFolderName("");
+                  }
+                }}
+                className="bg-blue-600 cursor-pointer hover:bg-blue-700 transition-colors"
+                type="submit"
+              >
+                Save changes
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </form>
+      </Dialog>
+    )
+  }, [openRenameFolderModal, newFolderName]);
+
   return (
     <>
       <div className="flex-1 overflow-y-auto pt-2">
@@ -162,8 +222,43 @@ function Folders() {
                   <span className="text-sm font-medium text-gray-700">{folder.name}</span>
                 </div>
               </div>
-              <span className="text-xs text-gray-500">
+              <span className="text-xs text-gray-500 flex items-center">
                 {(notesByFolder[folder.id] || []).length}
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <button
+                      onClick={(e) => e.stopPropagation()}
+                      className="ml-1 p-1 hover:bg-gray-200 rounded cursor-pointer"
+                    >
+                      <EllipsisVertical className="w-4 h-4 text-gray-600" />
+                    </button>
+                  </DropdownMenuTrigger>
+
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem
+                      className="cursor-pointer"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setNewFolderName(folder.name);
+                        setOpenRenameFolderModal(folder);
+                      }}
+                    >
+                      Rename
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (window.confirm("Are you sure you want to delete this folder?")) {
+                          deleteFolder(folder.id);
+                        }
+                      }}
+                      className="text-red-600 focus:text-red-600 cursor-pointer"
+                    >
+                      Delete
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+
               </span>
             </div>
 
@@ -242,6 +337,7 @@ function Folders() {
         ))}
       </div>
       <MoveNoteModal />
+      <RenameFolderModal />
     </>
   );
 }
