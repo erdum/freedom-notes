@@ -30,6 +30,10 @@ export const useStore = create((set, get) => ({
   editingTags: false,
   tempTags: '',
   tempContent: '',
+  openMoveNoteModal: false,
+  openRenameFolderModal: false,
+  targetFolderId: 'def',
+  newFolderName: '',
 
   // Setters
   setSearchTerm: (searchTerm) => set({ searchTerm }),
@@ -73,6 +77,12 @@ export const useStore = create((set, get) => ({
   setEditingTags: (editingTags) => set({ editingTags }),
   setTempTags: (tempTags) => set({ tempTags }),
   setTempContent: (tempContent) => set({ tempContent }),
+  setOpenMoveNoteModal: (openMoveNoteModal) => set({ openMoveNoteModal }),
+  setOpenRenameFolderModal: (openRenameFolderModal) => set(
+    { openRenameFolderModal }
+  ),
+  setTargetFolderId: (targetFolderId) => set({ targetFolderId }),
+  setNewFolderName: (newFolderName) => set({ newFolderName }),
 
   // Actions
   addFolder: (folder) => {
@@ -154,8 +164,8 @@ export const useStore = create((set, get) => ({
     }
   },
 
-  moveNoteToFolder: (selectedNote, folderId) => {
-    get().updateNote(selectedNote.id, { folderId });
+  moveNoteToFolder: (noteId, folderId) => {
+    get().updateNote(noteId, { folderId });
     get().setSelectedFolder(folderId);
   },
 

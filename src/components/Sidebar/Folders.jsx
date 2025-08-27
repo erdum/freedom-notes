@@ -36,6 +36,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { useStore } from '../../store';
+import MoveNoteModal from '../modals/MoveNote';
+import RenameFolderModal from '../modals/RenameFolder';
 
 function Folders() {
   const folders = useStore((state) => state.folders);
@@ -54,6 +56,11 @@ function Folders() {
   const moveNoteToFolder = useStore((state) => state.moveNoteToFolder);
   const renameFolder = useStore((state) => state.renameFolder);
   const deleteFolder = useStore((state) => state.deleteFolder);
+  const setOpenMoveNoteModal = useStore((state) => state.setOpenMoveNoteModal);
+  const setOpenRenameFolderModal = useStore(
+    (state) => state.setOpenRenameFolderModal
+  );
+  const setNewFolderName = useStore((state) => state.setNewFolderName);
 
   const filteredNotes = notes.filter(note => {
     const matchesSearch = 
@@ -74,125 +81,6 @@ function Folders() {
     acc[note.folderId].push(note);
     return acc;
   }, {});
-
-  const [openMoveNoteModal, setOpenMoveNoteModal] = useState(false);
-  const [targetFolderId, setTargetFolderId] = useState("def");
-  const [openRenameFolderModal, setOpenRenameFolderModal] = useState(false);
-  const [newFolderName, setNewFolderName] = useState("");
-
-  const MoveNoteModal = useCallback(() => {
-    return (
-      <Dialog open={!!openMoveNoteModal} onOpenChange={setOpenMoveNoteModal}>
-        <form>
-          <DialogContent className="sm:max-w-[425px]">
-            <DialogHeader>
-              <DialogTitle>Move note</DialogTitle>
-              <DialogDescription>
-                Select the folder where you want to move the note. Click save when you&apos;re
-                done.
-              </DialogDescription>
-            </DialogHeader>
-            <div className="grid gap-4">
-              <div className="grid gap-3">
-                <Label htmlFor="move-to-folder">Folder</Label>
-                <Select
-                  id="move-to-folder"
-                  name="move-to-folder"
-                  onValueChange={(value) => setTargetFolderId(value)}
-                  value={targetFolderId}
-                >
-                  <SelectTrigger className="w-[280px]">
-                    <SelectValue placeholder="Select a folder" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem disabled value="def">Select a folder</SelectItem>
-                    {folders.map((folder) => (
-                      <SelectItem
-                        disabled={folder.id == openMoveNoteModal}
-                        key={folder.id}
-                        value={folder.id}
-                      >
-                        {folder.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-            <DialogFooter>
-              <DialogClose asChild>
-                <Button className="cursor-pointer" variant="outline">Cancel</Button>
-              </DialogClose>
-              <Button
-                onClick={(e) => {
-                  e.preventDefault();
-
-                  if (targetFolderId) {
-                    moveNoteToFolder(selectedNote, targetFolderId);
-                    setOpenMoveNoteModal(false);
-                  }
-                  setTargetFolderId("def");
-                }}
-                className="bg-blue-600 cursor-pointer hover:bg-blue-700 transition-colors"
-                type="submit"
-              >
-                Save changes
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </form>
-      </Dialog>
-    )
-  }, [openMoveNoteModal, targetFolderId, selectedNote]);
-
-  const RenameFolderModal = useCallback(() => {
-    return (
-      <Dialog open={!!openRenameFolderModal} onOpenChange={setOpenRenameFolderModal}>
-        <form>
-          <DialogContent className="sm:max-w-[425px]">
-            <DialogHeader>
-              <DialogTitle>Rename folder</DialogTitle>
-              <DialogDescription>
-                Enter a new name for this folder. Click save when you&apos;re done.
-              </DialogDescription>
-            </DialogHeader>
-
-            <div className="grid gap-4">
-              <div className="grid gap-3">
-                <Label htmlFor="folder-name">Folder name</Label>
-                <Input
-                  id="folder-name"
-                  value={newFolderName}
-                  onChange={(e) => setNewFolderName(e.target.value)}
-                  placeholder="Enter folder name"
-                />
-              </div>
-            </div>
-
-            <DialogFooter>
-              <DialogClose asChild>
-                <Button className="cursor-pointer" variant="outline">Cancel</Button>
-              </DialogClose>
-              <Button
-                onClick={(e) => {
-                  e.preventDefault();
-                  if (openRenameFolderModal && newFolderName.trim()) {
-                    renameFolder(openRenameFolderModal, newFolderName);
-                    setOpenRenameFolderModal(false);
-                    setNewFolderName("");
-                  }
-                }}
-                className="bg-blue-600 cursor-pointer hover:bg-blue-700 transition-colors"
-                type="submit"
-              >
-                Save changes
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </form>
-      </Dialog>
-    )
-  }, [openRenameFolderModal, newFolderName]);
 
   return (
     <>
@@ -300,7 +188,8 @@ function Folders() {
                           </p>
                           <button
                             onClick={(e) => {
-                              setOpenMoveNoteModal(folder.id);
+                              e.stopPropagation();
+                              setOpenMoveNoteModal(note);
                             }}
                             className="p-1 hover:bg-gray-200 rounded cursor-pointer"
                             >
