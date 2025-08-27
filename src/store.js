@@ -188,9 +188,12 @@ export const useStore = create((set, get) => ({
 
   deleteFolder: (folderId) => {
     (async () => {
-      await db.notes.where("folderId").equals(folderId).modify({ folderId: 'misc' });
+      await db.notes.where("folderId").equals(folderId)
+        .modify({ folderId: 'misc' });
+
+      const updatedNotes = await db.notes.toArray();
+      get().setNotes(updatedNotes);
     })();
-    // Update notes
 
     const updatedFolders = get().folders.filter(folder => {
 
