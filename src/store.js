@@ -30,6 +30,7 @@ export const useStore = create((set, get) => ({
   editingTags: false,
   tempTags: '',
   tempContent: '',
+  tempImages: [],
   openMoveNoteModal: false,
   openRenameFolderModal: false,
   targetFolderId: 'def',
@@ -71,6 +72,7 @@ export const useStore = create((set, get) => ({
   setSidebarOpen: (sidebarOpen) => set({ sidebarOpen }),
   setEditingTitle: (editingTitle) => set({ editingTitle }),
   setTempTitle: (tempTitle) => set({ tempTitle }),
+  setTempImages: (tempImages) => set({ tempImages }),
   setShowNewFolderForm: (showNewFolderForm) => set({ showNewFolderForm }),
   setNewFolderName: (newFolderName) => set({ newFolderName }),
   setNewFolderColor: (newFolderColor) => set({ newFolderColor }),
@@ -136,6 +138,7 @@ export const useStore = create((set, get) => ({
       id: Date.now(),
       title: get().tempTitle.trim() ?? 'Untitled Note',
       content: get().tempContent ?? '',
+      images: get().tempImages ?? [],
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
       folderId,
@@ -144,7 +147,7 @@ export const useStore = create((set, get) => ({
 
     get().addNote(newNote);
     get().setSelectedNote(newNote);
-    set({ isPreview: false, tempTitle: '', tempContent: '' });
+    set({ isPreview: false, tempTitle: '', tempContent: '', tempImages: [] });
   },
 
   updateNote: (noteId, updates) => {
