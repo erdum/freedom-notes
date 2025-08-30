@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useStore } from '../store';
 import { parseMarkdown } from '../markdown';
+import { Trash2 } from 'lucide-react';
 
 function Editor() {
   const isPreview = useStore((state) => state.isPreview);
@@ -64,6 +65,10 @@ function Editor() {
     }
   };
 
+  const removeImage = (index) => {
+    setImages(prevImages => prevImages.filter((_, i) => i !== index));
+  };
+
   return (
     <>
       {/* Images Bar */}
@@ -72,12 +77,22 @@ function Editor() {
           const url = URL.createObjectURL(img);
 
           return (
-            <img
-              className="aspect-square w-28 object-contain cursor-pointer hover:opacity-80 transition"
-              key={i}
-              src={url}
-              onClick={() => setPreviewImg(url)}
-            />
+            <div key={i} className="relative">
+              <img
+                className="aspect-square w-36 object-contain transition"
+                src={url}
+                onClick={() => setPreviewImg(url)}
+              />
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  removeImage(i);
+                }}
+                className="absolute top-2 right-2 p-1 hover:bg-red-100 rounded cursor-pointer"
+              >
+                <Trash2 className="w-4 h-4 text-red-500" />
+              </button>
+            </div>
           );
         })}
       </div>
