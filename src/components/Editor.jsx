@@ -30,7 +30,6 @@ function Editor() {
   };
 
   useEffect(() => {
-    console.log(selectedNote);
     setImages(selectedNote?.images ?? []);
   }, [selectedNote]);
 
