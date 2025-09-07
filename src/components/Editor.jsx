@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useStore } from '../store';
 import { parseMarkdown } from '../markdown';
 import { Trash2 } from 'lucide-react';
+import MarkdownToolbar from './MarkdownToolbar';
 
 function Editor() {
   const isPreview = useStore((state) => state.isPreview);
@@ -14,6 +15,19 @@ function Editor() {
 
   const [images, setImages] = useState([]);
   const [previewImg, setPreviewImg] = useState(null);
+
+  const textareaRef = useRef(null);
+
+  const handleImageUpload = () => {
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = "image/*";
+    input.onchange = (e) => {
+      const file = e.target.files[0];
+      if (file) setImages((prev) => [...prev, file]);
+    };
+    input.click();
+  };
 
   useEffect(() => {
     console.log(selectedNote);
@@ -115,6 +129,11 @@ function Editor() {
             }}
             placeholder="Start writing your note..."
             className="flex-1 p-6 resize-none focus:outline-none font-mono text-sm leading-relaxed"
+            ref={textareaRef}
+          />
+          <MarkdownToolbar
+            textareaRef={textareaRef}
+            onImageUpload={handleImageUpload}
           />
         </div>
 
@@ -128,7 +147,7 @@ function Editor() {
                   dangerouslySetInnerHTML={{ 
                     __html: parseMarkdown(selectedNote.content)
                   }}
-                />
+                ></div>
               ) : (
                 <div className="flex items-center justify-center h-full text-gray-500">
                   <div className="text-center">
