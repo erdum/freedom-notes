@@ -36,7 +36,9 @@ function Editor() {
   useEffect(() => {
 
     if (selectedNote?.id) {
-      updateNote(selectedNote.id, { images });
+      if (images.length != selectedNote.images) {
+        updateNote(selectedNote.id, { images });
+      }
     } else {
       setTempImages(images);
     }
