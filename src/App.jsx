@@ -12,7 +12,7 @@ function App() {
   useEffect(() => {
     const init = async () => {
       const [notes, folders] = await Promise.all([
-        db.notes.toArray(),
+        db.notes.toCollection().reverse().sortBy('updatedAt'),
         db.folders.toArray(),
       ]);
 
