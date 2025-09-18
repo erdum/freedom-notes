@@ -88,10 +88,13 @@ export const useStore = create((set, get) => ({
 
   // Actions
   addFolder: (folder) => {
-    (async () => {
-      await db.folders.add(folder);
-    })();
-    set({ folders: [...get().folders, folder] });
+    const exists = get().folders.filter(f => f.id == folder.id);
+    if (exists.length === 0) {
+      (async () => {
+        await db.folders.add(folder);
+      })();
+      set({ folders: [...get().folders, folder] });
+    }
   },
   addNote: (note) => {
     (async () => {
