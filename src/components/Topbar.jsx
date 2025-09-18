@@ -41,6 +41,108 @@ function Topbar() {
     if (selectedNote?.id) saveTitleEdit();
   };
 
+  const processKeepTakeout = async (file, labelMap) => {
+    try {
+      const jsonString = await file.text();
+      const note = JSON.parse(jsonString);
+      const labels = note.labels ?? [];
+      const attachments = note.attachments ?? [];
+      const isArchived = note.isArchived ?? false;
+      const isPinned = note.isArchived ?? false;
+      const isTrashed = note.isTrashed ?? false;
+      const color = note.color ?? '#3b82f6';
+      const title = note.title ?? 'Untitled Note';
+      const createdAt = note.createdTimestampUsec / 1000;
+      const editedAt = note.userEditedTimestampUsec / 1000;
+      const noteData = {
+        labels,
+        attachments,
+        isArchived,
+        isPinned,
+        isTrashed,
+        color,
+        title,
+        createdAt,
+        editedAt,
+        content: ''
+      };
+      
+      // Process note content based on note type
+      if (note.textContent) {
+        noteData.content = note.textContent;
+      } else if (note.listContent) {
+        let content = '';
+        note.listContent.forEach((item) => {
+          content += `\n- ${item.isChecked ? '[x]' : '[ ]'} ${item.text}`;
+        });
+
+        noteData.content = content;
+      }
+
+      if (labels.length === 0) {
+        // Notes without labels go to "Important" folder
+        if (!labelMap.has('Important')) {
+          labelMap.set('Important', []);
+        }
+
+        labelMap.get('Important').push(noteData);
+      } else {
+        // Create folders for each label
+        labels.forEach(label => {
+          const labelName = label.name;
+
+          if (!labelMap.has(labelName)) {
+            labelMap.set(labelName, []);
+          } 
+          labelMap.get(labelName).push(noteData);
+        }); 
+      } 
+    } catch (error) {
+      alert('Error importing Google Keep data. Please make sure you selected the correct JSON file.');
+    } 
+  };
+
+  const handleFileSelect = (event) => {
+    const files = event.target.files;
+    const labelMap = new Map();
+
+    (async () => {
+      for (var i = files.length - 1; i >= 0; i--) {
+        const file = files[i];
+
+        if (file && file.type === 'application/json') {
+          await processKeepTakeout(file, labelMap);
+        } 
+      }
+
+      labelMap.forEach((notes, labelName) => {
+        const folderId = labelName.toLowerCase();
+        addFolder({
+          id: folderId,
+          name: labelName,
+          expanded: false,
+          // color: '#3b82f6'
+        });
+
+        notes.forEach(note => {
+          addNote({
+            title: note.title,
+            content: note.content,
+            createdAt: note.createdAt,
+            updatedAt: note.editedAt,
+            folderId,
+            tags: [],
+            images: []
+          });
+        });
+      });
+
+      alert(`Successfully imported ${files.length} notes organized into ${labelMap.size} folders!`);
+    })();
+
+    event.target.value = '';
+  };
+
   return (
     <div className="bg-white border-b border-gray-200 p-4 flex items-center justify-between">
       {/* Left Side */}
@@ -137,7 +239,8 @@ function Topbar() {
           type="file"
           multiple
           accept=".json"
-          onChange={(e) => {
+          onChange={(event) => {
+            handleFileSelect(event);
           }}
           className="hidden"
         />
