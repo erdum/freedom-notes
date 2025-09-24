@@ -28,6 +28,7 @@ function Topbar() {
   const createNewNote = useStore((state) => state.createNewNote);  
   const addFolder = useStore((state) => state.addFolder);
   const addNote = useStore((state) => state.addNote);
+  const notesIndex = useStore((state) => state.notesIndex);
 
   const selectedNoteFolder = useMemo(() => {
     return folders.find(f => f.id === selectedNote.folderId)
@@ -224,7 +225,7 @@ function Topbar() {
               Import Google Keep Notes
             </DropdownMenuItem>
             <DropdownMenuItem
-              onClick={() => console.log("Sync clicked")}
+              onClick={() => console.log("Sync clicked", notesIndex)}
               className="flex items-center gap-2 cursor-pointer"
             >
               <FolderSync className="w-4 h-4" />

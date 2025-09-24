@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { db } from './db';
+import { hash } from './lib/utils';
 
 export const useStore = create((set, get) => ({
   // State
@@ -17,8 +18,10 @@ export const useStore = create((set, get) => ({
     updatedAt: new Date().toISOString(),
     folderId: 'misc',
     // tags: ['welcome', 'tutorial', 'markdown', 'features']
-    tags: []
+    tags: [],
+    version: ''
   }],
+  notesIndex: new Map(),
   selectedNote: {},
   isPreview: false,
   sidebarOpen: true,
@@ -35,6 +38,9 @@ export const useStore = create((set, get) => ({
   openRenameFolderModal: false,
   targetFolderId: 'def',
   newFolderName: '',
+  serverToken: null,
+  syncingInProgress: false,
+  lastSynced: Date.now(),
 
   // Setters
   setSearchTerm: (searchTerm) => set({ searchTerm }),
@@ -98,9 +104,12 @@ export const useStore = create((set, get) => ({
   },
   addNote: (note) => {
     (async () => {
-      await db.notes.add(note);
+      const newNote = { ...note };
+      newNote.version = await hash(newNote.content + newNote.updateAt);
+      await db.notes.add(newNote);
+      set({ notes: [...get().notes, newNote] });
+      get().updateNotesIndex(newNote.id, newNote.version);
     })();
-    set({ notes: [...get().notes, note] });
   },
 
   // Centralized Logic
@@ -154,16 +163,33 @@ export const useStore = create((set, get) => ({
   },
 
   updateNote: (noteId, updates) => {
+    var updatedNote = {};
+    const updatedNotesPromise = get().notes.map(
+      async (note) => {
+        if (note.id === noteId) {
+          updatedNote = {
+            ...note,
+            ...updates,
+            updatedAt: new Date().toISOString(),
+            version: await hash(note.content + note.updateAt)
+          };
+          get().updateNotesIndex(updatedNote.id, updatedNote.version);
+
+          return updatedNote;
+        }
+
+        return note;
+      }
+    );
+
     (async () => {
       await db.notes.update(
         noteId,
-        { ...updates, updatedAt: new Date().toISOString() }
+        updatedNote
       );
+      const updatedNotes = await Promise.all(updatedNotesPromise);
+      get().setNotes(updatedNotes);
     })();
-    const updatedNotes = get().notes.map(
-      note => note.id === noteId ? { ...note, ...updates, updatedAt: new Date().toISOString() } : note
-    );
-    get().setNotes(updatedNotes);
 
     if (get().selectedNote.id === noteId) {
       get().setSelectedNote({ ...get().selectedNote, ...updates });
@@ -263,6 +289,12 @@ export const useStore = create((set, get) => ({
       day: 'numeric',
       year: 'numeric'
     });
+  },
+
+  updateNotesIndex: (id, hash) => {
+    const updatedIndex = new Map(get().notesIndex);
+    updatedIndex.set(id, hash);
+    set({ notesIndex: updatedIndex });
   },
 
 }));
