@@ -3,12 +3,13 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+} from "@/components/ui/dropdown-menu";
 import { 
   Menu, Eye, Edit3, Settings, FolderSync, Upload, ChevronDown 
-} from "lucide-react"
-import { useMemo, useRef } from "react"
-import { useStore } from "../store"
+} from "lucide-react";
+import { useMemo, useRef } from "react";
+import { v4 as uuid } from 'uuid';
+import { useStore } from "../store";
 
 function Topbar() {
   const fileInputRef = useRef(null);
@@ -124,9 +125,9 @@ function Topbar() {
           expanded: false,
           // color: '#3b82f6'
         });
-
         notes.forEach(note => {
           addNote({
+            id: uuid(),
             title: note.title,
             content: note.content,
             createdAt: note.createdAt,

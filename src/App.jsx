@@ -11,9 +11,10 @@ import { db } from './db';
 function App() {
   useEffect(() => {
     const init = async () => {
-      const [notes, folders] = await Promise.all([
+      const [notes, folders, notesIndex] = await Promise.all([
         db.notes.toCollection().reverse().sortBy('updatedAt'),
         db.folders.toArray(),
+        db.notesIndex.toArray(),
       ]);
 
       if (folders.length === 0) {
@@ -26,6 +27,11 @@ function App() {
         useStore.getState().setNotes(useStore.getState().notes);
       } else {
         useStore.getState().setNotes(notes);
+      }
+
+      if (notesIndex.length > 0) {
+        console.log(notesIndex.length);
+        useStore.getState().setNotesIndex(notesIndex);
       }
     };
     init();

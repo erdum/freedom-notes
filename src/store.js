@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { v4 as uuid } from 'uuid';
 import { db } from './db';
 import { hash } from './lib/utils';
 
@@ -11,7 +12,7 @@ export const useStore = create((set, get) => ({
   marked: null,
   folders: [{ id: 'misc', name: 'Misc', expanded: true, color: '#3b82f6' }],
   notes: [{
-    id: 1,
+    id: uuid(),
     title: 'Welcome to Freedom Notes',
     content: `# Welcome to Freedom Notes`,
     createdAt: new Date().toISOString(),
@@ -91,6 +92,8 @@ export const useStore = create((set, get) => ({
   ),
   setTargetFolderId: (targetFolderId) => set({ targetFolderId }),
   setNewFolderName: (newFolderName) => set({ newFolderName }),
+  setSyncingInProgress: (syncingInProgress) => set({ syncingInProgress });
+  setNotesIndex: (notesIndex) => set({ notesIndex }),
 
   // Actions
   addFolder: (folder) => {
@@ -105,7 +108,7 @@ export const useStore = create((set, get) => ({
   addNote: (note) => {
     (async () => {
       const newNote = { ...note };
-      newNote.version = await hash(newNote.content + newNote.updateAt);
+      newNote.version = await hash(newNote.content + newNote.updatedAt);
       await db.notes.add(newNote);
       set({ notes: [...get().notes, newNote] });
       get().updateNotesIndex(newNote.id, newNote.version);
@@ -147,7 +150,7 @@ export const useStore = create((set, get) => ({
 
   createNewNote: (folderId = 'misc') => {
     const newNote = {
-      id: Date.now(),
+      id: uuid(),
       title: get().tempTitle.trim() ?? 'Untitled Note',
       content: get().tempContent ?? '',
       images: get().tempImages ?? [],
@@ -171,7 +174,7 @@ export const useStore = create((set, get) => ({
             ...note,
             ...updates,
             updatedAt: new Date().toISOString(),
-            version: await hash(note.content + note.updateAt)
+            version: await hash(note.content + note.updatedAt)
           };
           get().updateNotesIndex(updatedNote.id, updatedNote.version);
 
@@ -292,9 +295,11 @@ export const useStore = create((set, get) => ({
   },
 
   updateNotesIndex: (id, hash) => {
-    const updatedIndex = new Map(get().notesIndex);
-    updatedIndex.set(id, hash);
-    set({ notesIndex: updatedIndex });
+    (async () => {
+      const updatedIndex = new Map(get().notesIndex);
+      updatedIndex.set(id, hash);
+      await db.notesIndex.put({ id, hash });
+      set({ notesIndex: updatedIndex });
+    })();
   },
-
 }));
