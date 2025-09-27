@@ -10,4 +10,7 @@ class FirebaseSyncAPI extends ServerSyncAPIInterface {
 
     push() {
     }
+
+    compareIndex() {
+    }
 }
