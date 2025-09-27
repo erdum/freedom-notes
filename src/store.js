@@ -92,7 +92,7 @@ export const useStore = create((set, get) => ({
   ),
   setTargetFolderId: (targetFolderId) => set({ targetFolderId }),
   setNewFolderName: (newFolderName) => set({ newFolderName }),
-  setSyncingInProgress: (syncingInProgress) => set({ syncingInProgress });
+  setSyncingInProgress: (syncingInProgress) => set({ syncingInProgress }),
   setNotesIndex: (notesIndex) => set({ notesIndex }),
 
   // Actions

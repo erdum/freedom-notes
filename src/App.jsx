@@ -30,8 +30,9 @@ function App() {
       }
 
       if (notesIndex.length > 0) {
-        console.log(notesIndex.length);
-        useStore.getState().setNotesIndex(notesIndex);
+        useStore.getState().setNotesIndex(
+          new Map(notesIndex.map(({ id, hash }) => [id, hash]))
+        );
       }
     };
     init();
