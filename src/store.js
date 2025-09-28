@@ -39,9 +39,8 @@ export const useStore = create((set, get) => ({
   openRenameFolderModal: false,
   targetFolderId: 'def',
   newFolderName: '',
-  serverToken: null,
   syncingInProgress: false,
-  lastSynced: Date.now(),
+  importInProgress: false,
 
   // Setters
   setSearchTerm: (searchTerm) => set({ searchTerm }),
@@ -93,6 +92,7 @@ export const useStore = create((set, get) => ({
   setTargetFolderId: (targetFolderId) => set({ targetFolderId }),
   setNewFolderName: (newFolderName) => set({ newFolderName }),
   setSyncingInProgress: (syncingInProgress) => set({ syncingInProgress }),
+  setImportInProgress: (importInProgress) => set({ importInProgress }),
   setNotesIndex: (notesIndex) => set({ notesIndex }),
 
   // Actions

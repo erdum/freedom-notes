@@ -29,7 +29,8 @@ function Topbar() {
   const createNewNote = useStore((state) => state.createNewNote);  
   const addFolder = useStore((state) => state.addFolder);
   const addNote = useStore((state) => state.addNote);
-  const notesIndex = useStore((state) => state.notesIndex);
+  const setSyncingInProgress = useStore((state) => state.setSyncingInProgress);
+  const setImportInProgress = useStore((state) => state.setImportInProgress);
 
   const selectedNoteFolder = useMemo(() => {
     return folders.find(f => f.id === selectedNote.folderId)
@@ -139,6 +140,7 @@ function Topbar() {
         });
       });
 
+      setImportInProgress(false);
       alert(`Successfully imported ${files.length} notes organized into ${labelMap.size} folders!`);
     })();
 
@@ -226,7 +228,7 @@ function Topbar() {
               Import Google Keep Notes
             </DropdownMenuItem>
             <DropdownMenuItem
-              onClick={() => console.log("Sync clicked", notesIndex)}
+              onClick={() => {setSyncingInProgress(true);}}
               className="flex items-center gap-2 cursor-pointer"
             >
               <FolderSync className="w-4 h-4" />
@@ -241,9 +243,11 @@ function Topbar() {
           type="file"
           multiple
           accept=".json"
+          onClick={() => setImportInProgress(true)}
           onChange={(event) => {
             handleFileSelect(event);
           }}
+          onCancel={() => setImportInProgress(false)}
           className="hidden"
         />
       </div>
